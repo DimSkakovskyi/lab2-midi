@@ -9,6 +9,8 @@ public sealed class MidiPlaybackService : IDisposable
   private Playback? _playback;
   private bool _disposed;
 
+  public event EventHandler? PlaybackFinished;
+
   public void Play(string filePath)
   {
     ObjectDisposedException.ThrowIf(
@@ -36,14 +38,46 @@ public sealed class MidiPlaybackService : IDisposable
 
     _playback = midiFile.GetPlayback(_outputDevice);
 
+    _playback.Finished += OnPlaybackFinished;
+
     _playback.Start();
+  }
+
+  private void OnPlaybackFinished(
+      object? sender,
+      EventArgs e)
+  {
+    PlaybackFinished?.Invoke(this, EventArgs.Empty);
+  }
+
+  public void ValidateFile(string filePath)
+  {
+    ObjectDisposedException.ThrowIf(
+        _disposed,
+        this);
+
+    if (!File.Exists(filePath))
+    {
+      throw new FileNotFoundException(
+          "MIDI-файл не знайдено.",
+          filePath);
+    }
+
+    // MidiFile.Read повністю перевіряє структуру файлу.
+    // Якщо файл пошкоджений або не є MIDI, бібліотека викине виняток.
+    _ = MidiFile.Read(filePath);
   }
 
   public void Stop()
   {
     try
     {
-      _playback?.Stop();
+      if (_playback is not null)
+      {
+        _playback.Finished -= OnPlaybackFinished;
+        _playback.Stop();
+      }
+
       _outputDevice?.TurnAllNotesOff();
     }
     finally

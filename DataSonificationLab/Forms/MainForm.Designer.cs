@@ -1,3 +1,5 @@
+#nullable enable
+
 using System.ComponentModel;
 
 namespace DataSonificationLab.Forms;
@@ -23,6 +25,7 @@ partial class MainForm
   private Button removeButton = null!;
   private Button exampleButton = null!;
   private Button generateButton = null!;
+  private Button openMidiButton = null!;
   private Button playButton = null!;
   private Button stopButton = null!;
 
@@ -60,6 +63,7 @@ partial class MainForm
     removeButton = new Button();
     exampleButton = new Button();
     generateButton = new Button();
+    openMidiButton = new Button();
     playButton = new Button();
     stopButton = new Button();
 
@@ -110,6 +114,8 @@ partial class MainForm
         DataGridViewAutoSizeColumnsMode.Fill;
 
     notesGrid.DataError += NotesGrid_DataError;
+    notesGrid.CellValidating += NotesGrid_CellValidating;
+    notesGrid.CellParsing += NotesGrid_CellParsing;
 
     pitchColumn.HeaderText = "Pitch (0–127)";
     pitchColumn.DataPropertyName =
@@ -167,6 +173,10 @@ partial class MainForm
     generateButton.Margin = new Padding(15, 3, 3, 3);
     generateButton.Click += GenerateButton_Click;
 
+    openMidiButton.Text = "Відкрити MIDI";
+    openMidiButton.AutoSize = true;
+    openMidiButton.Click += OpenMidiButton_Click;
+
     playButton.Text = "Відтворити";
     playButton.AutoSize = true;
     playButton.Click += PlayButton_Click;
@@ -181,6 +191,7 @@ partial class MainForm
     controlsPanel.Controls.Add(tempoLabel);
     controlsPanel.Controls.Add(tempoNumeric);
     controlsPanel.Controls.Add(generateButton);
+    controlsPanel.Controls.Add(openMidiButton);
     controlsPanel.Controls.Add(playButton);
     controlsPanel.Controls.Add(stopButton);
 
